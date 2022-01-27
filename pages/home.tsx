@@ -7,7 +7,7 @@ import { ThirdwebSDK } from "@3rdweb/sdk";
 const sdk = new ThirdwebSDK("rinkeby");
 
 const bundleDropModule = sdk.getBundleDropModule(
-  "0xB6edF6E4e51A3D8c1a40e80e0a25E561d0Df653b"
+  "0x9a4c13d336D85EF571E856803bb702BC108E12eD"
 );
 
 const WALLET_ADDRESS = "0x8Ff7f00Fc3888387e7459785F73769999A65cd57";
@@ -95,6 +95,7 @@ const Home = () => {
         );
       })
       .catch((err) => {
+        alert("You don't have permission to mint this NFT.");
         console.error("failed to claim", err);
       })
       .finally(() => {
@@ -106,7 +107,7 @@ const Home = () => {
   // Render mint nft screen.
   return (
     <div className="mint-nft">
-      <h1>Mint your free 🍪DAO Membership NFT</h1>
+      <h1>Mint your free {WALLET_ADDRESS} Membership NFT</h1>
       <button disabled={isClaiming} onClick={() => mintNft()}>
         {isClaiming ? "Minting..." : "Mint your nft (FREE)"}
       </button>
