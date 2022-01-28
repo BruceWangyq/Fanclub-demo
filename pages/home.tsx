@@ -28,9 +28,11 @@ const Home = () => {
 
   // Another useEffect!
   useEffect(() => {
+    if (signer) {
+      sdk.setProviderOrSigner(signer);
+    }
     // We pass the signer to the sdk, which enables us to interact with
     // our deployed contract!
-    sdk.setProviderOrSigner(signer);
   }, [signer]);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const Home = () => {
     }
 
     // Check if the user has the NFT by using bundleDropModule.balanceOf
-    return bundleDropModule
+    bundleDropModule
       .balanceOf(address, "0")
       .then((balance) => {
         // If balance is greater than 0, they have our NFT!

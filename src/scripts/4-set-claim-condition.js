@@ -13,6 +13,7 @@ const bundleDrop = sdk.getBundleDropModule(
       "0xB78d0Ba89a5a01F8FC09E896B841be05cc247393",
       "0x07C331E48d7767062D44C1F0a64566859AA265Fc",
       "0x5E0c9C286a993f82D7B5536f5EF6899d7F42dDA2",
+      "0x6c9058477c8224628911370B137CDcE338Ed4112",
     ];
     const claimPhase = factory.newClaimPhase({
       startTime: new Date(),
