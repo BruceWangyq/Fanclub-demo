@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-import { ethers } from "ethers";
-import { ThirdwebSDK, BundleDropModule } from "@3rdweb/sdk";
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { ethers } from 'ethers';
+import { ThirdwebSDK, BundleDropModule } from '@3rdweb/sdk';
 
 interface ThirdWebContextInterface {
   sdk: ThirdwebSDK | null;
@@ -24,13 +24,20 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
 
   const initThirdWeb = useCallback(() => {
     // Some quick checks to make sure our .env is working.
-    if (!process.env.PRIVATE_KEY || process.env.PRIVATE_KEY == "") {
-      console.log("🛑 Private key not found.");
+    console.log(process.env.NEXT_PUBLIC_PRIVATE_KEY);
+    if (
+      !process.env.NEXT_PUBLIC_PRIVATE_KEY ||
+      process.env.NEXT_PUBLIC_PRIVATE_KEY == ''
+    ) {
+      console.log('🛑 Private key not found.');
       return;
     }
 
-    if (!process.env.ALCHEMY_API_URL || process.env.ALCHEMY_API_URL == "") {
-      console.log("🛑 Alchemy API URL not found.");
+    if (
+      !process.env.NEXT_PUBLIC_ALCHEMY_API_URL ||
+      process.env.NEXT_PUBLIC_ALCHEMY_API_URL == ''
+    ) {
+      console.log('🛑 Alchemy API URL not found.');
       return;
     }
 
@@ -42,38 +49,26 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     const sdk = new ThirdwebSDK(
       new ethers.Wallet(
         // Your wallet private key. ALWAYS KEEP THIS PRIVATE, DO NOT SHARE IT WITH ANYONE, add it to your .env file and do not commit that file to github!
-        process.env.PRIVATE_KEY || "",
+        process.env.NEXT_PUBLIC_PRIVATE_KEY || '',
         // RPC URL, we'll use our Alchemy API URL from our .env file.
-        ethers.getDefaultProvider(process.env.ALCHEMY_API_URL)
+        ethers.getDefaultProvider(process.env.NEXT_PUBLIC_ALCHEMY_API_URL)
       )
     );
 
-    setSdk(sdk);
-  }, []);
+    const bundleDrop = sdk.getBundleDropModule(
+      '0x9a4c13d336D85EF571E856803bb702BC108E12eD'
+    );
 
-  const updateWhitelist = useCallback((address: string, follow: boolean) => {
-    let newList = [];
-    if (!follow) {
-      newList = whitelist.filter((item) => {
-        return item !== address;
-      });
-    } else {
-      newList = whitelist.concat([address]);
-    }
-    setWhitelist(newList);
-    updateThirdWebWhitelist(newList);
+    setBundleDrop(bundleDrop);
+    setSdk(sdk);
   }, []);
 
   const updateThirdWebWhitelist = useCallback(
     async (whitelist: string[]) => {
-      if (!sdk) {
+      if (!sdk || !bundleDrop) {
         return;
       }
-      const bundleDrop = sdk.getBundleDropModule(
-        "0x9a4c13d336D85EF571E856803bb702BC108E12eD"
-      );
-
-      setBundleDrop(bundleDrop);
+      console.log(sdk);
 
       try {
         const factory = bundleDrop.getClaimConditionFactory();
@@ -89,14 +84,30 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
 
         await bundleDrop.setClaimCondition(0, factory);
         console.log(
-          "✅ Successfully set claim condition on bundle drop:",
+          '✅ Successfully set claim condition on bundle drop:',
           bundleDrop.address
         );
       } catch (error) {
-        console.error("Failed to set claim condition", error);
+        console.error('Failed to set claim condition', error);
       }
     },
-    [sdk]
+    [sdk, bundleDrop]
+  );
+
+  const updateWhitelist = useCallback(
+    (address: string, follow: boolean) => {
+      let newList = [];
+      if (!follow) {
+        newList = whitelist.filter((item) => {
+          return item !== address;
+        });
+      } else {
+        newList = whitelist.concat([address]);
+      }
+      setWhitelist(newList);
+      updateThirdWebWhitelist(newList);
+    },
+    [updateThirdWebWhitelist, whitelist]
   );
 
   useEffect(() => {
