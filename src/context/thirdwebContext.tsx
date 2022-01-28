@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { ethers } from "ethers";
-import { ThirdwebSDK } from "@3rdweb/sdk";
+import { ThirdwebSDK, BundleDropModule } from "@3rdweb/sdk";
 
 interface ThirdWebContextInterface {
   sdk: ThirdwebSDK | null;
   updateWhitelist: (address: string, follow: boolean) => void;
+  whitelist: string[];
+  bundleDrop: BundleDropModule | null;
 }
 
 export const ThirdWebContext = React.createContext<ThirdWebContextInterface>({
   sdk: null,
   updateWhitelist: () => undefined,
+  whitelist: [],
+  bundleDrop: null,
 });
 
 export const ThirdWebContextProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<ThirdwebSDK | null>(null);
+  const [bundleDrop, setBundleDrop] = useState<BundleDropModule | null>(null);
 
   const [whitelist, setWhitelist] = useState<string[]>([]);
 
@@ -68,6 +73,8 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
         "0x9a4c13d336D85EF571E856803bb702BC108E12eD"
       );
 
+      setBundleDrop(bundleDrop);
+
       try {
         const factory = bundleDrop.getClaimConditionFactory();
 
@@ -101,6 +108,8 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
       value={{
         sdk,
         updateWhitelist,
+        whitelist,
+        bundleDrop,
       }}
     >
       {children}

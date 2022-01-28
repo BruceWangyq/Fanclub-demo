@@ -20,19 +20,14 @@ import { useThirdWeb } from "../src/context/thirdwebContext";
 const NAME_SPACE = "CyberConnect";
 const NETWORK = Network.ETH;
 
-const sdk = new ThirdwebSDK("rinkeby");
-
-const bundleDropModule = sdk.getBundleDropModule(
-  "0x9a4c13d336D85EF571E856803bb702BC108E12eD"
-);
-
+// const sdk = new ThirdwebSDK("rinkeby");
 const Home = () => {
   // Use the connectWallet hook thirdweb gives us.
   const { connectWallet, address, error, provider } = useWeb3();
   console.log("👋 Address:", address);
   const WALLET_ADDRESS = address;
 
-  const { updateWhitelist } = useThirdWeb();
+  const { sdk, whitelist, updateWhitelist, bundleDrop } = useThirdWeb();
 
   const [searchAddrInfo, setSearchAddrInfo] =
     useState<SearchUserInfoResp | null>(null);
@@ -60,21 +55,21 @@ const Home = () => {
 
   // Another useEffect!
   useEffect(() => {
-    if (signer) {
+    if (signer && sdk) {
       sdk.setProviderOrSigner(signer);
     }
     // We pass the signer to the sdk, which enables us to interact with
     // our deployed contract!
-  }, [signer]);
+  }, [signer, sdk]);
 
   useEffect(() => {
     // If they don't have an connected wallet, exit!
-    if (!address) {
+    if (!address || !bundleDrop) {
       return;
     }
 
     // Check if the user has the NFT by using bundleDropModule.balanceOf
-    bundleDropModule
+    bundleDrop
       .balanceOf(address, "0")
       .then((balance) => {
         // If balance is greater than 0, they have our NFT!
@@ -117,8 +112,11 @@ const Home = () => {
 
   const mintNft = () => {
     setIsClaiming(true);
+    if (!bundleDrop) {
+      return;
+    }
     // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
-    bundleDropModule
+    bundleDrop
       .claim("0", 1)
       .then(() => {
         // Set claim state.
@@ -137,10 +135,18 @@ const Home = () => {
         setIsClaiming(false);
       });
   };
-
+  const hanndleAddWhitelist = async () => {
+    if (whitelist.indexOf(address) !== -1) {
+      return;
+    } else {
+      updateWhitelist(address, true);
+      console.log("Add {address} to whitelist");
+    }
+  };
   // Render mint nft screen.
   return (
     <div className="mint-nft">
+      <button onClick={hanndleAddWhitelist}>Add address to whitelist</button>
       <h1>Mint your free {WALLET_ADDRESS} Membership NFT</h1>
       <button disabled={isClaiming} onClick={() => mintNft()}>
         {isClaiming ? "Minting..." : "Mint your nft (FREE)"}
