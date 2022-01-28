@@ -4,18 +4,50 @@ import { useEffect, useMemo, useState } from "react";
 import { useWeb3 } from "@3rdweb/hooks";
 import { ThirdwebSDK } from "@3rdweb/sdk";
 
+import { followListInfoQuery, searchUserInfoQuery } from "../src/utils/query";
+import {
+  FollowListInfoResp,
+  SearchUserInfoResp,
+  Network,
+} from "../src/utils/types";
+import {
+  formatAddress,
+  removeDuplicate,
+  isValidAddr,
+} from "../src/utils/helper";
+import { useThirdWeb } from "../src/context/thirdwebContext";
+
+const NAME_SPACE = "CyberConnect";
+const NETWORK = Network.ETH;
+
 const sdk = new ThirdwebSDK("rinkeby");
 
 const bundleDropModule = sdk.getBundleDropModule(
   "0x9a4c13d336D85EF571E856803bb702BC108E12eD"
 );
 
-const WALLET_ADDRESS = "0x8Ff7f00Fc3888387e7459785F73769999A65cd57";
-
 const Home = () => {
   // Use the connectWallet hook thirdweb gives us.
   const { connectWallet, address, error, provider } = useWeb3();
   console.log("👋 Address:", address);
+  const WALLET_ADDRESS = address;
+
+  const { updateWhitelist } = useThirdWeb();
+
+  const [searchAddrInfo, setSearchAddrInfo] =
+    useState<SearchUserInfoResp | null>(null);
+
+  const fetchSearchAddrInfo = async (toAddr: string) => {
+    const resp = await searchUserInfoQuery({
+      fromAddr: address,
+      toAddr,
+      namespace: NAME_SPACE,
+      network: NETWORK,
+    });
+    if (resp) {
+      setSearchAddrInfo(resp);
+    }
+  };
 
   // The signer is required to sign transactions on the blockchain.
   // Without it we can only read data, not write.
@@ -65,7 +97,7 @@ const Home = () => {
   if (!address) {
     return (
       <div className="landing">
-        <h1>Welcome to {WALLET_ADDRESS} Fanclub</h1>
+        <h2>Welcome to {WALLET_ADDRESS} Fanclub</h2>
         <button onClick={() => connectWallet("injected")} className="btn-hero">
           Connect your wallet
         </button>
@@ -77,7 +109,7 @@ const Home = () => {
   if (hasClaimedNFT) {
     return (
       <div className="member-page">
-        <h1>{WALLET_ADDRESS} Fan Member Page</h1>
+        <h2>{WALLET_ADDRESS} Fan Member Page</h2>
         <p>Congratulations on being a member</p>
       </div>
     );
