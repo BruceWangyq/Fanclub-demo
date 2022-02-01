@@ -145,9 +145,22 @@ const Home = () => {
       console.log('Add {address} to whitelist');
     }
   };
+
+  const checkCanClaim = async () => {
+    if (!bundleDrop) return;
+    console.log('123');
+    try {
+      const result = await bundleDrop.canClaim('0', 1);
+
+      console.log(result);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   // Render mint nft screen.
   return (
     <div className="mint-nft">
+      <button onClick={checkCanClaim}>Check canClaim</button>
       <button onClick={hanndleAddWhitelist}>Add address to whitelist</button>
       <h1>Mint your free {WALLET_ADDRESS} Membership NFT</h1>
       <button disabled={isClaiming} onClick={() => mintNft()}>

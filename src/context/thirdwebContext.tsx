@@ -56,10 +56,11 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     );
 
     const bundleDrop = sdk.getBundleDropModule(
-      '0x9a4c13d336D85EF571E856803bb702BC108E12eD'
+      '0xfd1e14bA0aA9A5ff464c466cb84e6eA94693fDcD'
     );
 
     setBundleDrop(bundleDrop);
+    console.log(bundleDrop);
     setSdk(sdk);
   }, []);
 
