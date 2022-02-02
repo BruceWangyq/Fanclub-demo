@@ -72,7 +72,7 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     );
 
     setBundleDrop(bundleDrop);
-    console.log(bundleDrop);
+    console.log("bundleDrop:", bundleDrop);
     setSdk(sdk);
   }, []);
 

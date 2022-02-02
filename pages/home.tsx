@@ -23,6 +23,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 const NAME_SPACE = "CyberConnect";
 const NETWORK = Network.ETH;
+const SEARCHADDRESS = "0x148d59faf10b52063071eddf4aaf63a395f2d41c";
 
 // const sdk = new ThirdwebSDK("rinkeby");
 const Home = () => {
@@ -50,12 +51,14 @@ const Home = () => {
   const fetchSearchAddrInfo = async () => {
     const resp = await searchUserInfoQuery({
       fromAddr: address,
-      toAddr: "0x148d59faf10b52063071eddf4aaf63a395f2d41c",
+      toAddr: SEARCHADDRESS,
       namespace: NAME_SPACE,
       network: NETWORK,
     });
+    console.log("resp:", resp);
     if (resp) {
       setSearchAddrInfo(resp);
+      console.log("searchAddrInfo:", searchAddrInfo);
     }
   };
 
@@ -226,7 +229,7 @@ const Home = () => {
 
   const checkCanClaim = async () => {
     if (!bundleDrop) return;
-    console.log("123");
+    console.log("Check if you can claim");
     try {
       const result = await bundleDrop.canClaim("0", 1);
 
@@ -273,12 +276,12 @@ const Home = () => {
             >
               Check if I am eligible to claim
             </button>
-            <button
+            {/* <button
               onClick={hanndleAddWhitelist}
               className="bg-gray-600 w-60 m-4 rounded-md p-2 hover:bg-gray-600 hover:300"
             >
               Add address to whitelist
-            </button>
+            </button> */}
             <h1 className="text-white mx-4">
               Mint your free Membership NFT if you followed "cyberlab.eth"
             </h1>
