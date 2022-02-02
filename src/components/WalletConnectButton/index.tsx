@@ -19,7 +19,7 @@ export const WalletConnectButton: React.FC = () => {
     <div>
       {!address ? (
         <button
-          //   loading={loading}
+          // loading={loading}
           onClick={connect}
           className="bg-white text-black font-semibold rounded-2xl px-8 py-2 hover:translate-x-2 hover:bg-slate-400"
         >

@@ -239,6 +239,10 @@ const Home = () => {
     }
   };
   // Render mint nft screen.
+  console.log("searchAddrInfo", searchAddrInfo);
+  useEffect(() => {
+    fetchSearchAddrInfo();
+  }, [address]);
 
   return (
     <div className="bg-black h-screen">
@@ -255,11 +259,9 @@ const Home = () => {
               </h1>
               <LoadingButton
                 onClick={handleFollow}
-                disabled={
-                  searchLoading || !isValidAddr(searchInput) || !address
-                }
+                disabled={searchLoading || !address}
                 loading={followLoading}
-                className="bg-white"
+                className="!bg-white pt-2 mt-2"
               >
                 {!searchAddrInfo?.followStatus.isFollowing
                   ? "Follow"
