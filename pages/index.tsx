@@ -1,7 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import Router from "next/router";
 // import styles from "../styles/Home.module.css";
 import { useEffect, useMemo, useState } from "react";
 
@@ -10,7 +9,6 @@ import { useWeb3 } from "@3rdweb/hooks";
 import { WalletConnectButton } from "../src/components/WalletConnectButton";
 
 const Home: NextPage = () => {
-  const { connectWallet } = useWeb3();
   return (
     <div>
       <Head>

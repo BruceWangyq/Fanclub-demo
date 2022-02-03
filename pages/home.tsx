@@ -18,12 +18,14 @@ import {
 } from "../src/utils/helper";
 
 import { useThirdWeb } from "../src/context/thirdwebContext";
+
 import { HeaderLink } from "../src/components/HeaderLink";
 import LoadingButton from "@mui/lab/LoadingButton";
+import Snackbar from "@mui/material/Snackbar";
 
 const NAME_SPACE = "CyberConnect";
 const NETWORK = Network.ETH;
-const SEARCHADDRESS = "0x148d59faf10b52063071eddf4aaf63a395f2d41c";
+const CYBERLABADDRESS = "0x148d59faf10b52063071eddf4aaf63a395f2d41c";
 
 // const sdk = new ThirdwebSDK("rinkeby");
 const Home = () => {
@@ -41,24 +43,20 @@ const Home = () => {
   const [isClaiming, setIsClaiming] = useState(false);
 
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
-  const [searchInput, setSearchInput] = useState<string>("");
   const [followLoading, setFollowLoading] = useState<boolean>(false);
-  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarText, setSnackbarText] = useState<string>("");
-  const [followListInfo, setFollowListInfo] =
-    useState<FollowListInfoResp | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   const fetchSearchAddrInfo = async () => {
     const resp = await searchUserInfoQuery({
       fromAddr: address,
-      toAddr: SEARCHADDRESS,
+      toAddr: CYBERLABADDRESS,
       namespace: NAME_SPACE,
       network: NETWORK,
     });
     console.log("resp:", resp);
     if (resp) {
       setSearchAddrInfo(resp);
-      console.log("searchAddrInfo:", searchAddrInfo);
     }
   };
 
@@ -71,7 +69,7 @@ const Home = () => {
 
     // Execute connect if the current user is not following the search addrress.
     if (!searchAddrInfo.followStatus.isFollowing) {
-      await cyberConnect.connect(searchInput);
+      await cyberConnect.connect(CYBERLABADDRESS);
 
       // Overwrite the local status of isFollowing
       setSearchAddrInfo((prev) => {
@@ -86,25 +84,9 @@ const Home = () => {
           : prev;
       });
 
-      // Add the new following to the current user followings list
-      setFollowListInfo((prev) => {
-        return !!prev
-          ? {
-              ...prev,
-              followingCount: prev.followingCount + 1,
-              followings: {
-                ...prev.followings,
-                list: removeDuplicate(
-                  prev.followings.list.concat([searchAddrInfo.identity])
-                ),
-              },
-            }
-          : prev;
-      });
-
       setSnackbarText("Follow Success!");
     } else {
-      await cyberConnect.disconnect(searchInput);
+      await cyberConnect.disconnect(CYBERLABADDRESS);
 
       setSearchAddrInfo((prev) => {
         return !!prev
@@ -113,21 +95,6 @@ const Home = () => {
               followStatus: {
                 ...prev.followStatus,
                 isFollowing: false,
-              },
-            }
-          : prev;
-      });
-
-      setFollowListInfo((prev) => {
-        return !!prev
-          ? {
-              ...prev,
-              followingCount: prev.followingCount - 1,
-              followings: {
-                ...prev.followings,
-                list: prev.followings.list.filter((user) => {
-                  return user.address !== searchAddrInfo.identity.address;
-                }),
               },
             }
           : prev;
@@ -217,16 +184,6 @@ const Home = () => {
       });
   };
 
-  const hanndleAddWhitelist = async () => {
-    if (whitelist.indexOf(address) !== -1) {
-      console.log("already in whitelist");
-      return;
-    } else {
-      updateWhitelist(address, true);
-      console.log("Add {address} to whitelist");
-    }
-  };
-
   const checkCanClaim = async () => {
     if (!bundleDrop) return;
     console.log("Check if you can claim");
@@ -272,18 +229,11 @@ const Home = () => {
             <p className="text-white text-lg my-2 mx-4">
               Address: 0x148d59faf10b52063071eddf4aaf63a395f2d41c
             </p>
-            <button
-              onClick={checkCanClaim}
-              className="bg-white w-60 m-4 rounded-md p-2 hover:bg-gray-600 hover:300"
-            >
-              Check if I am eligible to claim
-            </button>
-            {/* <button
-              onClick={hanndleAddWhitelist}
-              className="bg-gray-600 w-60 m-4 rounded-md p-2 hover:bg-gray-600 hover:300"
-            >
-              Add address to whitelist
-            </button> */}
+            <div className="text-blue-400 m-2 rounded-md p-2">
+              {!hasClaimedNFT || !searchAddrInfo?.followStatus.isFollowing
+                ? "Hey! You can mint the membership NFT!"
+                : "Sorry! You are not eligable for the membership NFT!"}
+            </div>
             <h1 className="text-white mx-4">
               Mint your free Membership NFT if you followed "cyberlab.eth"
             </h1>
