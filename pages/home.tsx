@@ -94,7 +94,17 @@ const Home = () => {
 
       setSnackbarText("Unfollow Success!");
     }
-
+    console.log(1);
+    await fetch("http://localhost:5000", {
+      method: "GET",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      referrerPolicy: "no-referrer",
+      body: null,
+    });
+    console.log(2);
     setSnackbarOpen(true);
     setFollowLoading(false);
   };
