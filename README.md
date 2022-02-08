@@ -1,15 +1,16 @@
 ## Fanclub
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a demo project integrated with [CyberConnect](https://cyberconnect.me/) where you can follow a specific address and mint an membership NFT by becoming of a "fan" of the address.
+bootstrapped with [cyberconnect GraphQL API](https://api.cybertino.io/connect/graphiql).
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
+npm install
+# then
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
