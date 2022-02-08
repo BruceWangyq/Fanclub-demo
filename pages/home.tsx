@@ -1,47 +1,112 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 // import thirdweb
-import { useWeb3 } from '@3rdweb/hooks';
-import { ThirdwebSDK } from '@3rdweb/sdk';
+import { useWeb3 } from "@3rdweb/hooks";
+import { ThirdwebSDK } from "@3rdweb/sdk";
 
-import { followListInfoQuery, searchUserInfoQuery } from '../src/utils/query';
-import {
-  FollowListInfoResp,
-  SearchUserInfoResp,
-  Network,
-} from '../src/utils/types';
-import {
-  formatAddress,
-  removeDuplicate,
-  isValidAddr,
-} from '../src/utils/helper';
-import { useThirdWeb } from '../src/context/thirdwebContext';
+import { searchUserInfoQuery } from "../src/utils/query";
+import { SearchUserInfoResp, Network } from "../src/utils/types";
 
-const NAME_SPACE = 'CyberConnect';
+import { useThirdWeb } from "../src/context/thirdwebContext";
+
+import { HeaderLink } from "../src/components/HeaderLink";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+
+const NAME_SPACE = "CyberConnect";
 const NETWORK = Network.ETH;
+const TARGETADDRESS = "0x8Ff7f00Fc3888387e7459785F73769999A65cd57";
 
 // const sdk = new ThirdwebSDK("rinkeby");
 const Home = () => {
   // Use the connectWallet hook thirdweb gives us.
-  const { connectWallet, address, error, provider } = useWeb3();
-  console.log('👋 Address:', address);
-  const WALLET_ADDRESS = address;
+  const { provider } = useWeb3();
 
-  const { sdk, whitelist, updateWhitelist, bundleDrop } = useThirdWeb();
+  const { sdk, bundleDrop, cyberConnect, address } = useThirdWeb();
+  console.log("👋 Address:", address);
 
-  const [searchAddrInfo, setSearchAddrInfo] =
+  const [targetAddrInfo, settargetAddrInfo] =
     useState<SearchUserInfoResp | null>(null);
+  const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
+  // isClaiming lets us easily keep a loading state while the NFT is minting.
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [followLoading, setFollowLoading] = useState<boolean>(false);
+  const [snackbarText, setSnackbarText] = useState<string>("");
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
-  const fetchSearchAddrInfo = async (toAddr: string) => {
+  const fetchTargetAddrInfo = async () => {
+    if (!address) {
+      return;
+    }
     const resp = await searchUserInfoQuery({
       fromAddr: address,
-      toAddr,
+      toAddr: TARGETADDRESS,
       namespace: NAME_SPACE,
       network: NETWORK,
     });
+    console.log("resp:", resp);
     if (resp) {
-      setSearchAddrInfo(resp);
+      settargetAddrInfo(resp);
     }
+  };
+
+  const handleFollow = async () => {
+    if (!cyberConnect || !targetAddrInfo) {
+      return;
+    }
+
+    setFollowLoading(true);
+
+    // Execute connect if the current user is not following the search addrress.
+    if (!targetAddrInfo.followStatus.isFollowing) {
+      await cyberConnect.connect(TARGETADDRESS);
+
+      // Overwrite the local status of isFollowing
+      settargetAddrInfo((prev) => {
+        return !!prev
+          ? {
+              ...prev,
+              followStatus: {
+                ...prev.followStatus,
+                isFollowing: true,
+              },
+            }
+          : prev;
+      });
+
+      setSnackbarText("Follow Success!");
+    } else {
+      await cyberConnect.disconnect(TARGETADDRESS);
+
+      settargetAddrInfo((prev) => {
+        return !!prev
+          ? {
+              ...prev,
+              followStatus: {
+                ...prev.followStatus,
+                isFollowing: false,
+              },
+            }
+          : prev;
+      });
+
+      setSnackbarText("Unfollow Success!");
+    }
+    console.log(1);
+    await fetch("http://localhost:5000", {
+      method: "GET",
+      cache: "no-cache",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      referrerPolicy: "no-referrer",
+      body: null,
+    });
+    console.log(2);
+    setSnackbarOpen(true);
+    setFollowLoading(false);
   };
 
   // The signer is required to sign transactions on the blockchain.
@@ -49,9 +114,6 @@ const Home = () => {
   const signer = provider ? provider.getSigner() : undefined;
 
   // State variable for us to know if user has our NFT.
-  const [hasClaimedNFT, setHasClaimedNFT] = useState(false);
-  // isClaiming lets us easily keep a loading state while the NFT is minting.
-  const [isClaiming, setIsClaiming] = useState(false);
 
   // Another useEffect!
   useEffect(() => {
@@ -70,12 +132,12 @@ const Home = () => {
 
     // Check if the user has the NFT by using bundleDropModule.balanceOf
     bundleDrop
-      .balanceOf(address, '0')
+      .balanceOf(address, "0")
       .then((balance) => {
         // If balance is greater than 0, they have our NFT!
         if (balance.gt(0)) {
           setHasClaimedNFT(true);
-          console.log('🌟 this user has a membership NFT!');
+          console.log("🌟 this user has a membership NFT!");
         } else {
           setHasClaimedNFT(false);
           console.log("😭 this user doesn't have a membership NFT.");
@@ -83,32 +145,9 @@ const Home = () => {
       })
       .catch((error) => {
         setHasClaimedNFT(false);
-        console.error('failed to nft balance', error);
+        console.error("failed to nft balance", error);
       });
   }, [address, bundleDrop]);
-
-  // This is the case where the user hasn't connected their wallet
-  // to your web app. Let them call connectWallet.
-  if (!address) {
-    return (
-      <div className="landing">
-        <h2>Welcome to {WALLET_ADDRESS} Fanclub</h2>
-        <button onClick={() => connectWallet('injected')} className="btn-hero">
-          Connect your wallet
-        </button>
-      </div>
-    );
-  }
-
-  // Add this little piece!
-  if (hasClaimedNFT) {
-    return (
-      <div className="member-page">
-        <h2>{WALLET_ADDRESS} Fan Member Page</h2>
-        <p>Congratulations on being a member</p>
-      </div>
-    );
-  }
 
   const mintNft = () => {
     setIsClaiming(true);
@@ -118,41 +157,89 @@ const Home = () => {
     console.log(bundleDrop);
     // Call bundleDropModule.claim("0", 1) to mint nft to user's wallet.
     bundleDrop
-      .claim('0', 1)
+      .claim("0", 1)
       .then(() => {
         // Set claim state.
         setHasClaimedNFT(true);
         // Show user their fancy new NFT!
         console.log(
-          `🌊 Successfully Minted! Check it our on OpenSea: https://testnets.opensea.io/assets/${bundleDropModule.address.toLowerCase()}/0`
+          `🌊 Successfully Minted! Check it our on OpenSea: https://testnets.opensea.io/assets/${bundleDrop.address.toLowerCase()}/0`
         );
       })
       .catch((err) => {
         alert("You don't have permission to mint this NFT.");
-        console.error('failed to claim', err);
+        console.error("failed to claim", err);
       })
       .finally(() => {
         // Stop loading state.
         setIsClaiming(false);
       });
   };
-  const hanndleAddWhitelist = async () => {
-    if (whitelist.indexOf(address) !== -1) {
-      console.log('already in whitelist');
-      return;
-    } else {
-      updateWhitelist(address, true);
-      console.log('Add {address} to whitelist');
-    }
-  };
+
   // Render mint nft screen.
+  useEffect(() => {
+    fetchTargetAddrInfo();
+  }, [address]);
+
   return (
-    <div className="mint-nft">
-      <button onClick={hanndleAddWhitelist}>Add address to whitelist</button>
-      <h1>Mint your free {WALLET_ADDRESS} Membership NFT</h1>
-      <button disabled={isClaiming} onClick={() => mintNft()}>
-        {isClaiming ? 'Minting...' : 'Mint your nft (FREE)'}
-      </button>
+    <div className="bg-black h-screen">
+      <HeaderLink />;
+      <div className="flex flex-col h-5/6 justify-center items-center">
+        <div className="flex items-center justify-center">
+          <div className="relative w-96 h-96 border-2 mr-14">
+            <Image src="/6.png" layout="fill" objectFit="contain" />
+          </div>
+          <div>
+            <div className="flex flex-row items-center">
+              <h1 className="text-white text-5xl font-semibold m-4">
+                cyberlab.eth
+              </h1>
+              <LoadingButton
+                onClick={handleFollow}
+                disabled={!address}
+                loading={followLoading}
+                className="!bg-white pt-2 mt-2"
+              >
+                {!targetAddrInfo?.followStatus.isFollowing
+                  ? "Follow"
+                  : "Unfollow"}
+              </LoadingButton>
+            </div>
+
+            <p className="text-white text-lg my-2 mx-4">
+              Address: 0x8Ff7f00Fc3888387e7459785F73769999A65cd57
+            </p>
+            <div className="text-blue-400 m-2 rounded-md p-2">
+              {!hasClaimedNFT && targetAddrInfo?.followStatus.isFollowing
+                ? "Hey! You can mint the membership NFT!"
+                : "Sorry! You are not eligable for the membership NFT!"}
+            </div>
+            <h1 className="text-white mx-4">
+              Mint your free Membership NFT if you followed "cyberlab.eth"
+            </h1>
+            <button
+              disabled={isClaiming}
+              onClick={() => mintNft()}
+              className="bg-white w-60 m-4 rounded-md p-2 hover:bg-gray-600 hover:300"
+            >
+              {isClaiming ? "Minting..." : "Mint your NFT (FREE)"}
+            </button>
+          </div>
+        </div>
+      </div>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <MuiAlert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarText}
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 };

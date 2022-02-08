@@ -1,11 +1,11 @@
-import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import { StyledEngineProvider } from "@mui/material";
+import '../styles/globals.css';
+import type { AppProps } from 'next/app';
+import { StyledEngineProvider } from '@mui/material';
 
 // Import ThirdWeb
-import { ThirdwebWeb3Provider } from "@3rdweb/hooks";
-import { Web3ContextProvider } from "../src/context/web3Context";
-import { ThirdWebContextProvider } from "../src/context/thirdwebContext";
+import { ThirdwebWeb3Provider } from '@3rdweb/hooks';
+import { Web3ContextProvider } from '../src/context/web3Context';
+import { ThirdWebContextProvider } from '../src/context/thirdwebContext';
 
 // Include what chains you wanna support.
 // 4 = Rinkeby.
@@ -20,14 +20,14 @@ const connectors = {
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <StyledEngineProvider injectFirst>
-      <ThirdwebWeb3Provider
-        connectors={connectors}
-        supportedChainIds={supportedChainIds}
-      >
-        <ThirdWebContextProvider>
+      <ThirdWebContextProvider>
+        <ThirdwebWeb3Provider
+          connectors={connectors}
+          supportedChainIds={supportedChainIds}
+        >
           <Component {...pageProps} />
-        </ThirdWebContextProvider>
-      </ThirdwebWeb3Provider>
+        </ThirdwebWeb3Provider>
+      </ThirdWebContextProvider>
     </StyledEngineProvider>
   );
 }
