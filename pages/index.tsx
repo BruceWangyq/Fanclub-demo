@@ -18,7 +18,11 @@ const Home: NextPage = () => {
       </Head>
       <div className="bg-black h-screen flex flex-col items-center justify-center">
         <div className="relative w-96 h-96">
-          <Image src="/6.png" layout="fill" objectFit="contain" />
+          <Image
+            src="/cyberconnect-white.png"
+            layout="fill"
+            objectFit="contain"
+          />
         </div>
         <div className="flex flex-col items-center justify-center relative">
           <h1 className="text-white text-5xl pb-16 font-bold">Fan Club</h1>

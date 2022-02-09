@@ -8,7 +8,7 @@ export const HeaderLink: React.FC = () => {
     <div className=" bg-black flex justify-around items-center h-20">
       <div className="relative w-96 h-24 cursor-pointer">
         <Image
-          src="/2.png"
+          src="/logo.png"
           layout="fill"
           objectFit="contain"
           onClick={() => {

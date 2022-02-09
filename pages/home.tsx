@@ -3,7 +3,6 @@ import Image from "next/image";
 
 // import thirdweb
 import { useWeb3 } from "@3rdweb/hooks";
-import { ThirdwebSDK } from "@3rdweb/sdk";
 
 import { searchUserInfoQuery } from "../src/utils/query";
 import { SearchUserInfoResp, Network } from "../src/utils/types";
@@ -23,7 +22,6 @@ const TARGETADDRESS = "0x8Ff7f00Fc3888387e7459785F73769999A65cd57";
 const Home = () => {
   // Use the connectWallet hook thirdweb gives us.
   const { provider } = useWeb3();
-
   const { sdk, bundleDrop, cyberConnect, address } = useThirdWeb();
 
   const [targetAddrInfo, settargetAddrInfo] =
@@ -185,7 +183,7 @@ const Home = () => {
       <div className="flex flex-col h-5/6 justify-center items-center">
         <div className="flex items-center justify-center">
           <div className="relative w-96 h-96 border-2 mr-14">
-            <Image src="/6.png" layout="fill" objectFit="contain" />
+            <Image src="/x-white.png" layout="fill" objectFit="contain" />
           </div>
           <div>
             <div className="flex flex-row items-center">
