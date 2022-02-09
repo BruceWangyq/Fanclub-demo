@@ -25,7 +25,6 @@ const Home = () => {
   const { provider } = useWeb3();
 
   const { sdk, bundleDrop, cyberConnect, address } = useThirdWeb();
-  console.log("👋 Address:", address);
 
   const [targetAddrInfo, settargetAddrInfo] =
     useState<SearchUserInfoResp | null>(null);
@@ -46,7 +45,6 @@ const Home = () => {
       namespace: NAME_SPACE,
       network: NETWORK,
     });
-    console.log("resp:", resp);
     if (resp) {
       settargetAddrInfo(resp);
     }
