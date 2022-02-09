@@ -6,32 +6,24 @@ import Web3Modal from "web3modal";
 
 interface ThirdWebContextInterface {
   sdk: ThirdwebSDK | null;
-  updateWhitelist: (address: string, follow: boolean) => void;
-  whitelist: string[];
   bundleDrop: BundleDropModule | null;
   connectWallet: () => Promise<void>;
   address: string;
-  ens: string | null;
   cyberConnect: CyberConnect | null;
 }
 
 export const ThirdWebContext = React.createContext<ThirdWebContextInterface>({
   sdk: null,
-  updateWhitelist: () => undefined,
-  whitelist: [],
   bundleDrop: null,
   connectWallet: async () => undefined,
   address: "",
-  ens: "",
   cyberConnect: null,
 });
 
 export const ThirdWebContextProvider: React.FC = ({ children }) => {
   const [sdk, setSdk] = useState<ThirdwebSDK | null>(null);
   const [bundleDrop, setBundleDrop] = useState<BundleDropModule | null>(null);
-  const [whitelist, setWhitelist] = useState<string[]>([]);
   const [address, setAddress] = useState<string>("");
-  const [ens, setEns] = useState<string | null>("");
   const [cyberConnect, setCyberConnect] = useState<CyberConnect | null>(null);
 
   const initThirdWeb = useCallback(() => {
@@ -76,61 +68,6 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     setSdk(sdk);
   }, []);
 
-  const updateThirdWebWhitelist = useCallback(
-    async (whitelist: string[]) => {
-      if (!sdk || !bundleDrop) {
-        return;
-      }
-      console.log(sdk);
-
-      try {
-        const factory = bundleDrop.getClaimConditionFactory();
-
-        // Specify conditions.
-        const claimPhase = factory.newClaimPhase({
-          startTime: new Date(),
-          maxQuantity: 10,
-          maxQuantityPerTransaction: 1,
-        });
-
-        claimPhase.setSnapshot(whitelist);
-
-        await bundleDrop.setClaimCondition(0, factory);
-        console.log(
-          "✅ Successfully set claim condition on bundle drop:",
-          bundleDrop.address
-        );
-      } catch (error) {
-        console.error("Failed to set claim condition", error);
-      }
-    },
-    [sdk, bundleDrop]
-  );
-
-  const updateWhitelist = useCallback(
-    (address: string, follow: boolean) => {
-      let newList = [];
-      if (!follow) {
-        newList = whitelist.filter((item) => {
-          return item !== address;
-        });
-      } else {
-        newList = whitelist.concat([address]);
-      }
-      setWhitelist(newList);
-      updateThirdWebWhitelist(newList);
-    },
-    [updateThirdWebWhitelist, whitelist]
-  );
-
-  async function getEnsByAddress(
-    provider: ethers.providers.Web3Provider,
-    address: string
-  ) {
-    const ens = await provider.lookupAddress(address);
-    return ens;
-  }
-
   const initCyberConnect = useCallback((provider: any) => {
     const cyberConnect = new CyberConnect({
       provider,
@@ -152,10 +89,8 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     const provider = new ethers.providers.Web3Provider(instance);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
-    const ens = await getEnsByAddress(provider, address);
 
     setAddress(address);
-    setEns(ens);
     initCyberConnect(provider);
   }, [initCyberConnect]);
 
@@ -167,12 +102,9 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
     <ThirdWebContext.Provider
       value={{
         sdk,
-        updateWhitelist,
-        whitelist,
         bundleDrop,
         connectWallet,
         address,
-        ens,
         cyberConnect,
       }}
     >
