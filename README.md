@@ -1,7 +1,20 @@
 ## Fanclub
 
 This is a demo project integrated with [CyberConnect](https://cyberconnect.me/) where you can follow a specific address and mint an membership NFT by becoming of a "fan" of the address.
-bootstrapped with [cyberconnect GraphQL API](https://api.cybertino.io/connect/graphiql).
+Date fetched from [cyberconnect API](https://api.cybertino.io/connect/graphiql).
+
+## Features
+
+This app includes two features:
+
+### 1. Follow/unfollow
+
+The app allows the current logged in user to follow/unfollow a specific address.
+
+### 2. Mint a membership NFT
+
+The app allows the user to mint a membership NFT (ERC1155 Token) as long as the user followed the specific address, and the user didn't have the same NFT.
+![NFT](src/assets//x.png)
 
 ## Getting Started
 
@@ -15,23 +28,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Meanwhile, we also need to run the local server for this app which you can clone from the [Fanclub-Server](https://github.com/BruceWangyq/Fanclub-Server).
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+After that, you can run the server:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+npm install
+# then
+node index.js
+```
 
-## Learn More
+Open [http://localhost:5000](http://localhost:5000) with your browser to see the result.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+![Cyberconnect](src/assets//cyberconnect.png)
