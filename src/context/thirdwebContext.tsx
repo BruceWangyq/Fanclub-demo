@@ -45,11 +45,6 @@ export const ThirdWebContextProvider: React.FC = ({ children }) => {
       return;
     }
 
-    // if (!process.env.WALLET_ADDRESS || process.env.WALLET_ADDRESS == "") {
-    //   console.log("🛑 Wallet Address not found.");
-    //   return;
-    // }
-
     const sdk = new ThirdwebSDK(
       new ethers.Wallet(
         // Your wallet private key. ALWAYS KEEP THIS PRIVATE, DO NOT SHARE IT WITH ANYONE, add it to your .env file and do not commit that file to github!
