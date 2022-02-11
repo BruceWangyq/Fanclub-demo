@@ -90,7 +90,7 @@ const Home = () => {
 
       setSnackbarText("Unfollow Success!");
     }
-    console.log(1);
+    console.log("starting adding to whitelist.");
     await fetch("http://localhost:5000", {
       method: "GET",
       cache: "no-cache",
@@ -100,7 +100,7 @@ const Home = () => {
       referrerPolicy: "no-referrer",
       body: null,
     });
-    console.log(2);
+    console.log("Address added to whitelist.");
     setSnackbarOpen(true);
     setFollowLoading(false);
   };
